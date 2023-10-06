@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RDS : Lift Simulation</title>
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <header>
+      <h2>RDS : Lift Simulation</h2>
+      <div>
+        <b>Source Code : </b>
+        <a href="https://github.com/devananth/Lift-Simulation" target="_blank"
+          >checkout Here</a
+        >
+      </div>
+    </header>
+    <section class="user_input">
+      <form id="user_form" class="user_form">
+        <div class="form_field">
+          <label class="form_label">Number of Floors</label>
+          <input
+            class="form_input"
+            name="totalFloors"
+            type="number"
+            placeholder="No.Of Floors"
+            min="1"
+            required
+          />
+        </div>
+        <div class="form_field">
+          <label class="form_label">Number of Lifts</label>
+          <input
+            class="form_input"
+            name="totalLifts"
+            type="number"
+            placeholder="No.Of Lifts"
+            min="1"
+            required
+          />
+        </div>
+        <div class="form_btns-container">
+          <button class="btn" type="submit">Generate</button>
+          <button class="btn reset-btn" type="reset">Reset</button>
+        </div>
+      </form>
+    </section>
+    <section class="building"></section>
+    <script src="js/main.js"></script>
+  </body>
+</html>

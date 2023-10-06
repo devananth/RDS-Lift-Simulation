@@ -1,0 +1,129 @@
+/* Default Styles */
+*{
+    margin : 0;
+    padding : 0;
+    box-sizing: border-box;
+}
+
+.btn{
+    padding: 6px;
+    cursor: pointer;
+}
+
+.btn[disabled]{
+    pointer-events: none;
+}
+
+
+/* Header Styles */
+header{
+    display: grid;
+    place-items: center;
+    gap: 1rem;
+    margin : 1rem;
+}
+
+/* User Form Styles */
+.user_input{
+    border: 1px solid black;
+    max-width: 20rem;
+    margin :  2rem auto;
+    padding: 1rem;
+}
+
+.user_form{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form_field{
+    display : flex;
+    flex-direction: column;
+    gap : 10px;
+}
+
+.form_label{
+    font-weight: 600;
+}
+
+.form_input{
+    padding : 5px;
+}
+.form_btns-container{
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Floor Styles */
+
+.floor_container{
+    height : 10rem;
+    border-bottom: 1px solid black;
+    display : flex;
+    gap: 1.5rem;
+    margin: 1rem;  
+    position: relative;
+}
+
+.floor_btns-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding : 1rem;
+}
+
+.floor_btns-container button{
+    width: 5rem;
+}
+
+/* Lift Styles */
+
+.lift-container{
+    display : flex;
+}
+.lift{
+    height : 7rem;
+    width : 6rem;
+    display: inline-block;
+    border-radius: 5px;
+    border: 2px solid black;
+}
+
+.lift_doors-container{
+    display: flex;
+    height : 100%;
+    width : 100%;   
+    background-color: yellow;
+
+}
+
+.lift_doors-container .left-door{
+    border-right : 1px solid black;
+    width : 50%;
+    background-color: aqua;
+}
+
+.lift_doors-container .right-door{
+    border-left : 1px solid black;
+    width : 50%;
+    background-color: aqua;
+}
+
+.lift_doors-container.openLift .left-door {
+    transform: translateX(-1.5em) scaleX(0);
+    transition: transform 2.5s ease-in-out;
+}
+
+.lift_doors-container.openLift .right-door {
+    transform: translateX(1.5em) scaleX(0);
+    transition: transform 2.5s ease-in-out;
+}
+
+.lift_doors-container.closeLift .left-door,
+.lift_doors-container.closeLift .right-door {
+    transform: translateX(0);
+    transition: transform 2.5s ease-in-out;
+}
