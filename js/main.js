@@ -31,10 +31,10 @@ function validateUserForm(event) {
     alert("No.of lifts should greater than 0");
   } else if (floorCount <= 0) {
     alert("No. of Floors should be greater than 0");
-  } else if (liftCount >= 5 || floorCount >= 6) {
-    alert(
-      "Total lifts should be less than 6 and total Floors should be less than 7"
-    );
+  } else if (liftCount > 5) {
+    alert("Total lifts should be less than 6");
+  } else if (floorCount > 6) {
+    alert("Total Floors should be less than 7");
   } else if (liftCount > floorCount) {
     alert("No. of lifts should be lesser than or equal to No. of Floors");
   } else {
@@ -49,11 +49,14 @@ function validateUserForm(event) {
   }
 }
 
-function buttonClickHandler(event) {
+async function buttonClickHandler(event) {
   const element = event.target;
   const destinationFloor = Number(element.getAttribute("floor-id"));
   pendingFloors.push(destinationFloor);
-  findLifts(destinationFloor);
+
+  if (isLiftAvailable()) {
+    findLifts();
+  }
 }
 
 function generateFloors() {
@@ -120,20 +123,23 @@ function generateLifts() {
   }
 }
 
-function findLifts() {
-  if (pendingFloors.length > 0 && isLiftAvailable()) {
+async function findLifts() {
+  if (pendingFloors.length > 0) {
     const destinationFloor = pendingFloors.shift();
-    const emptyLifts = getAllEmptyLifts();
-    const nearestLift = findNearestLift(emptyLifts, destinationFloor);
-    const liftElement = document.getElementById(`lift ${nearestLift.liftId}`);
-    console.log(liftElement);
 
-    if (nearestLift.currentFloor === destinationFloor) {
-      //updating lift => occupied
-      updateLiftState(nearestLift, nearestLift.currentFloor, true);
-      handleDoors(liftElement);
-    } else {
-      moveLift(liftElement, nearestLift, destinationFloor);
+    if (isLiftAvailable()) {
+      const emptyLifts = getAllEmptyLifts();
+      const nearestLift = findNearestLift(emptyLifts, destinationFloor);
+      const liftElement = document.getElementById(`lift ${nearestLift.liftId}`);
+
+      if (nearestLift.currentFloor === destinationFloor) {
+        // same floor just open the door
+        //updating lift => occupied
+        updateLiftState(nearestLift, nearestLift.currentFloor, true);
+        await handleDoors(liftElement, nearestLift, destinationFloor);
+      } else {
+        await moveLift(liftElement, nearestLift, destinationFloor);
+      }
     }
   }
 }
@@ -148,7 +154,7 @@ function isLiftAvailable() {
 }
 
 function getAllEmptyLifts() {
-  return allLifts.filter((lift) => !lift.isOccupied) || [];
+  return allLifts.filter((lift) => !lift?.isOccupied);
 }
 
 function findNearestLift(allEmptyLifts, destinationFloor) {
@@ -168,7 +174,7 @@ function updateLiftState(lift, currentFloor, isOccupied) {
 async function moveLift(liftElement, lift, destinationFloor) {
   const diffFloors = Math.abs(lift.currentFloor - destinationFloor);
   //updating lift => occupied
-  updateLiftState(lift, lift.currentFloor, true);
+  updateLiftState(lift, lift.currentFloor, (isOccupied = true));
 
   //moving lift
   liftElement.style.transform = `translateY(-${
@@ -178,7 +184,7 @@ async function moveLift(liftElement, lift, destinationFloor) {
   await setDelay(2 * diffFloors);
 
   //Handling door opening
-  handleDoors(liftElement, lift, destinationFloor);
+  await handleDoors(liftElement, lift, destinationFloor);
 }
 
 async function handleDoors(liftElement, lift, destinationFloor) {
@@ -190,8 +196,10 @@ async function handleDoors(liftElement, lift, destinationFloor) {
   doorsContainer.classList.remove("openLift");
   await setDelay(2.5);
   //update lift => not occupied
-  updateLiftState(lift, destinationFloor, false);
-  findLifts();
+  updateLiftState(lift, destinationFloor, (isOccupied = false));
+  if (pendingFloors.length > 0) {
+    findLifts();
+  }
 }
 
 function setDelay(secs) {

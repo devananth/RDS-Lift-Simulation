@@ -64,7 +64,7 @@ header{
     border-bottom: 1px solid black;
     display : flex;
     gap: 1.5rem;
-    margin: 1rem;  
+    margin: 0 1rem;  
     position: relative;
 }
 
@@ -87,6 +87,7 @@ header{
 .lift{
     height : 7rem;
     width : 6rem;
+    margin : .5rem 0;
     display: inline-block;
     border-radius: 5px;
     border: 2px solid black;
