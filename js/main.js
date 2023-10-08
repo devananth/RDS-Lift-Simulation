@@ -1,5 +1,6 @@
 const userForm = document.getElementById("user_form");
 const resetBtn = document.querySelector(".reset-btn");
+const backBtn = document.querySelector(".back_btn");
 const building = document.querySelector(".building");
 
 /*
@@ -16,9 +17,22 @@ let pendingFloors = [];
 
 userForm.addEventListener("submit", validateUserForm);
 
-resetBtn.addEventListener("click", () => {
-  building.innerHTML = ""; // clearing the building
+resetBtn.addEventListener("click", resetAll);
+
+backBtn.addEventListener("click", () => {
+  userForm.style.display = "flex";
+  backBtn.style.display = "none";
+  resetAll();
 });
+
+function resetAll() {
+  building.innerHTML = ""; // clearing the building
+  allLifts = [];
+  pendingFloors = [];
+  totalFloors = 0;
+  totalLifts = 0;
+  userForm.reset();
+}
 
 function validateUserForm(event) {
   event.preventDefault();
@@ -42,21 +56,49 @@ function validateUserForm(event) {
     totalFloors = floorCount;
     totalLifts = liftCount;
 
+    userForm.style.display = "none";
+    backBtn.style.display = "flex";
+
     //Generate building
     generateFloors();
     generateLifts();
-    console.log(allLifts);
   }
 }
 
 async function buttonClickHandler(event) {
   const element = event.target;
   const destinationFloor = Number(element.getAttribute("floor-id"));
+
+  // For evaluating only one lift per floor
+  const { liftElement, liftId } = checkIsLiftAlreadyPresent(destinationFloor);
+  if (liftElement) {
+    const liftState = getLiftById(liftId);
+    if (!liftState?.isOccupied) {
+      updateLiftState(liftElement, liftState.currentFloor, true);
+      await handleDoors(liftElement, getLiftById(liftId), destinationFloor);
+    }
+    return;
+  }
+
   pendingFloors.push(destinationFloor);
 
   if (isLiftAvailable()) {
-    findLifts();
+    await findLifts();
   }
+}
+
+function checkIsLiftAlreadyPresent(destinationFloor) {
+  const allLiftElements = document.querySelectorAll(".lift");
+  for (const lift of allLiftElements) {
+    if (
+      lift.style.transform == `translateY(-${(destinationFloor - 1) * 10}rem)`
+    ) {
+      let liftName = lift.id;
+      let liftId = Number(liftName.replace(/\D/g, ""));
+      return { liftElement: lift, liftId };
+    }
+  }
+  return { liftElement: null, liftId: null };
 }
 
 function generateFloors() {
@@ -125,7 +167,7 @@ function generateLifts() {
 
 async function findLifts() {
   if (pendingFloors.length > 0) {
-    const destinationFloor = pendingFloors.shift();
+    let destinationFloor = pendingFloors.shift();
 
     if (isLiftAvailable()) {
       const emptyLifts = getAllEmptyLifts();
@@ -155,6 +197,14 @@ function isLiftAvailable() {
 
 function getAllEmptyLifts() {
   return allLifts.filter((lift) => !lift?.isOccupied);
+}
+
+function getLiftById(liftId) {
+  for (let i = 0; i < allLifts.length; i++) {
+    if (allLifts[i].liftId === liftId) {
+      return allLifts[i];
+    }
+  }
 }
 
 function findNearestLift(allEmptyLifts, destinationFloor) {
@@ -197,6 +247,7 @@ async function handleDoors(liftElement, lift, destinationFloor) {
   await setDelay(2.5);
   //update lift => not occupied
   updateLiftState(lift, destinationFloor, (isOccupied = false));
+
   if (pendingFloors.length > 0) {
     findLifts();
   }
