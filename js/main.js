@@ -47,6 +47,8 @@ function validateUserForm(event) {
     alert("No. of Floors should be greater than 0");
   } else if (liftCount > 5) {
     alert("Total lifts should be less than 6");
+  } else if (floorCount > 9999) {
+    alert("App will crash if the no.of floors is more than 9999");
   } else if (liftCount > floorCount) {
     alert("No. of lifts should be lesser than or equal to No. of Floors");
   } else {
@@ -78,6 +80,13 @@ async function buttonClickHandler(event) {
     return;
   }
 
+  if (
+    pendingFloors.length > 0 &&
+    pendingFloors[pendingFloors.length - 1] === destinationFloor
+  ) {
+    return;
+  }
+
   pendingFloors.push(destinationFloor);
 
   if (isLiftAvailable()) {
@@ -87,15 +96,16 @@ async function buttonClickHandler(event) {
 
 function checkIsLiftAlreadyPresent(destinationFloor) {
   const allLiftElements = document.querySelectorAll(".lift");
+  const height = -(destinationFloor - 1) * 10;
   for (const lift of allLiftElements) {
-    if (
-      lift.style.transform == `translateY(-${(destinationFloor - 1) * 10}rem)`
-    ) {
+    console.log(lift.style.transform == `translateY(${height}rem)`);
+    if (lift.style.transform == `translateY(${height}rem)`) {
       let liftName = lift.id;
       let liftId = Number(liftName.replace(/\D/g, ""));
       return { liftElement: lift, liftId };
     }
   }
+
   return { liftElement: null, liftId: null };
 }
 
@@ -166,6 +176,15 @@ function generateLifts() {
 async function findLifts() {
   if (pendingFloors.length > 0) {
     let destinationFloor = pendingFloors.shift();
+    const { liftDiv, liftId } = checkIsLiftAlreadyPresent(destinationFloor);
+    if (liftDiv) {
+      const liftState = getLiftById(liftId);
+      if (!liftState?.isOccupied) {
+        updateLiftState(liftElement, liftState.currentFloor, true);
+        await handleDoors(liftElement, getLiftById(liftId), destinationFloor);
+      }
+      return;
+    }
 
     if (isLiftAvailable()) {
       const emptyLifts = getAllEmptyLifts();
