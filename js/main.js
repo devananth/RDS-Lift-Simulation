@@ -47,8 +47,6 @@ function validateUserForm(event) {
     alert("No. of Floors should be greater than 0");
   } else if (liftCount > 5) {
     alert("Total lifts should be less than 6");
-  } else if (floorCount > 6) {
-    alert("Total Floors should be less than 7");
   } else if (liftCount > floorCount) {
     alert("No. of lifts should be lesser than or equal to No. of Floors");
   } else {
